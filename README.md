@@ -1,2 +1,2 @@
 # RAG
-All the implementation of he rags (for learning)
+All the implementation of rags (for learning)
