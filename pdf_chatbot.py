@@ -4,6 +4,7 @@ from openai import OpenAI
 import json
 from prompts import basic_rag_system_prompt
 from vector_db import get_data
+from advance_rag import parallel_query
 
 
 load_dotenv()
@@ -26,12 +27,19 @@ while True:
         break
     messages.append({'role':'user','content':query})
     
+    # ----------basiic-rag---------------------------
+    # pdf_content = get_data('genai_cohort_v01',query)
+    # pdf_content = [data.page_content for data in pdf_content]
 
-    pdf_content = get_data('genai_cohort_v01',query)
+    # ----------parallel-retrival-query--------------
+    pdf_content = parallel_query(query,max_queries=10)
+    
 
 
-    for chunk in pdf_content:
-        messages.append(({'role':'user','content':chunk.page_content}))
+    separator = "\n---\n"
+    combined_pdf_content = separator.join(pdf_content)
+
+    messages.append(({'role':'user','content':combined_pdf_content}))
 
     while True:
         response = client.chat.completions.create(
@@ -54,6 +62,8 @@ while True:
             print(f"🌐  - {parsed_output.get('response')}")
 
         if parsed_output.get('step') == 'output':
+            print("_"*100)
+            messages = []
             print(f"🤖  - {parsed_output.get('response')}")
             break
     
