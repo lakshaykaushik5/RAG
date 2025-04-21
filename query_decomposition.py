@@ -34,8 +34,6 @@ while True:
 
         pdf_chunk = get_data('genai_cohort_v01',sub_query)
 
-        print(type(pdf_chunk))
-
         final_pdf_content = [data.page_content for data in pdf_chunk]
 
         seperator = '\n---\n'
@@ -58,7 +56,8 @@ while True:
 
     print('_'*100)
     print('OUTPUT','\n\n')
-    print(messages[len(messages)-1]['content'])
+    final_ans = json.loads(messages[len(messages)-1]['content'])
+    print(final_ans.get('response'))
     
 
 
