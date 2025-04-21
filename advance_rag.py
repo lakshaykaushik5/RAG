@@ -129,4 +129,37 @@ def reciprocate_rank_fusion(query,max_queries = 10):
         print(f"Error Reciprocate Rank Fusion :: {err}")
 
 
+def query_decomposition(query,max_queries=10):
+    try:
+        messages = []
+        messages.append({'role':'system','content':parallel_query_retrival_system_prompt})
+
+        messages.append({'role':'user','content':query})
+
+        response = client.chat.completions.create(
+            model=model_name,
+            response_format={'type':'json_object'},
+            messages=messages
+        )
+
+        parsed_output = json.loads(response.choices[0].message.content)
+
+        parsed_output.append(query)
+
+        final_output = []
+        for q in parsed_output:
+            if len(parsed_output) == len(final_output):
+                break
+            elif max_queries > 0:
+                final_output.append(q)
+                max_queries = max_queries - 1 
+            else:
+                break
+
+        
+        return final_output
+
+    except Exception as err:
+        print(f"Error in query decomposition  :: {err}")
+
 

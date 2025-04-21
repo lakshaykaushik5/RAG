@@ -68,6 +68,7 @@ while True:
         if parsed_output.get('step') == 'output':
             print("_"*100)
             messages = []
+            messages.append({'role':'system','content':basic_rag_system_prompt})
             print(f"🤖  - {parsed_output.get('response')}")
             break
     
