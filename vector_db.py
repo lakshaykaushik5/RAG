@@ -16,7 +16,7 @@ def add_data(chunk_data,collection_name):
         check_collection_exists= clieent.collection_exists(collection_name=collection_name)
 
         if not check_collection_exists:
-            vector_store = QdrantVectorStore.from_documents(
+                 = QdrantVectorStore.from_documents(
                 documents=chunk_data,
                 url=vectordb_url,
                 collection_name=collection_name,
