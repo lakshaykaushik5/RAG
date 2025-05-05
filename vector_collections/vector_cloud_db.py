@@ -1,8 +1,12 @@
 import os
+import sys
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient,models
-from embedder import openai_embedder
+from qdrant_client.http.models import VectorParams,Distance
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from RAG.embedder import openai_embedder
 from langchain_qdrant import QdrantVectorStore
+import sys
 
 
 
@@ -11,6 +15,12 @@ load_dotenv()
 qdrant_api_key = os.getenv('QUANDRANT_API_KEY')
 qdrant_url = os.getenv('QUANDRANT_URL')
 
+print(qdrant_api_key,'\n\n\n')
+
+print('_'*100)
+
+print(qdrant_url)
+
 client = QdrantClient(
     url=qdrant_url,
     api_key=qdrant_api_key
@@ -18,7 +28,7 @@ client = QdrantClient(
 
 
 
-def add(collection_name,chunk_data):
+def add_data(collection_name,chunk_data):
     try:
         check_collection_exists = client.collection_exists(collection_name=collection_name)
 
