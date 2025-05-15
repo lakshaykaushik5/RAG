@@ -5,7 +5,9 @@ from langgraph.graph.message import add_messages
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId,tool
 from langgraph.types import Command, interrupt
+# from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import ChatGoogleGenerativeAI
+
 from langchain_tavily import TavilySearch
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode,tools_condition
@@ -23,7 +25,7 @@ class state(TypedDict):
 
 @tool
 def human_assistance(name:str,birthday:str,tool_call_id:Annotated[str,InjectedToolCallId]):
-    """Request assistance from a human"""
+    """Request assistance from a human to confirm around dates"""
     human_response = interrupt(
         {
             'question':'Is this correct',
@@ -44,7 +46,7 @@ def human_assistance(name:str,birthday:str,tool_call_id:Annotated[str,InjectedTo
     state_update = {
         'name':verified_name,
         'birthday':verified_birthday,
-        'response':[ToolMessage(response,tool_call_id=tool_call_id)]
+        'messages':[ToolMessage(response,tool_call_id=tool_call_id)]
     }
 
     return Command(update=state_update)
@@ -53,7 +55,9 @@ def human_assistance(name:str,birthday:str,tool_call_id:Annotated[str,InjectedTo
 tool = TavilySearch(max_results=2)
 tools = [tool,human_assistance]
 
+# llm = ChatGoogleGenerativeAI(model=os.getenv('CHAT_MODEL_NAME'),google_api_key = os.getenv('GEMINI_API_KEY'))
 llm = ChatGoogleGenerativeAI(model=os.getenv('CHAT_MODEL_NAME'),google_api_key = os.getenv('GEMINI_API_KEY'))
+
 
 llm_with_tools=llm.bind_tools(tools)
 
@@ -80,13 +84,13 @@ memory = MemorySaver()
 graph = graph_builder.compile(checkpointer = memory)
 
 
-config = {"configurable":{'thread_id':"4"}}
+# config = {"configurable":{'thread_id':"4"}}
 
 user_input = (
     "Can you look up when LangGraph was released? "
     "When you have the answer, use the human_assistance tool for review."
 )
-config = {"configurable": {"thread_id": "4"}}
+config = {"configurable": {"thread_id": "12"}}
 
 events = graph.stream(
     {"messages": [{"role": "user", "content": user_input}]},
@@ -94,10 +98,14 @@ events = graph.stream(
     stream_mode="values",
 )
 for event in events:
+
     if "messages" in event:
         event["messages"][-1].pretty_print()
+    else:
+        print('|_|'*10)
+        print(event)
 
-print('=*='*200)
+print('=*='*250)
 
 human_command = Command(
     resume={
